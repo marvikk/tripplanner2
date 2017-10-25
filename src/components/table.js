@@ -12,7 +12,7 @@ export default class Table extends Component{
               {lat : 39.0, lon : -94.6, image : markerLogo, alt : 20000 },
               {lat : 30.4, lon : -81.6, image : markerLogo, alt : 20000 },
           ],
-      routes: [],
+      routes: []
   }
 };
   componentWillMount() {
@@ -29,25 +29,29 @@ export default class Table extends Component{
           console.log(routes);
         })
       .catch(error=>console.log(error));
-
-  //   axios
-  //     .post("http://localhost:3001/markerRoutes", {
-  //       name: "cuba" + Math.random(),
-  //       routes: this.state.line
-  //     })
-  //     .then((response) => {
-  //       console.log(response);
-  //     })
-  //     .catch((error) => {
-  //       console.log(error);
-  //     });
+    }
+addRoute = () =>{
+    axios
+      .post("http://localhost:3001/markerRoutes", {
+        name: "cuba" + Math.random(),
+        routes: this.state.line
+      })
+      .then((response) => {
+        console.log(response);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
 }
+
   render() {
     const {markerLogo, routes} = this.state;
     return (
       <div className="row">
   						<div className="col-md-12">
-                <button>Create new route</button> 
+                <button
+                   onClick={() => {this.addRoute()}}>
+                   Create new route</button>
                 <table className="table table-striped">
     <thead>
       <tr>
