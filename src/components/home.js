@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import axios from "axios";
+import Map from "./map";
 
 export default class Home extends Component {
   // componentWillMount() {
@@ -20,6 +21,5 @@ export default class Home extends Component {
   // }
   render() {
     return <div>Home!</div>;
-
   }
 }
