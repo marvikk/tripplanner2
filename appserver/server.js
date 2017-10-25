@@ -1,11 +1,13 @@
 var express = require("express");
 var bodyParser = require("body-parser");
-var { ObjectID } = require("mongodb");
+const {ObjectID} = require('mongodb');
 var cors = require("cors");
 var path = require("path");
 
 var { mongoose } = require("./db/mongoose");
 var { Destination } = require("./models/destination");
+var { MarkerRoutes } = require("./models/markerRoutes");
+
 
 var app = express();
 app.use(cors());
@@ -24,7 +26,8 @@ app.post("/destination", (req, res) => {
   var destination = new Destination({
     name: req.body.name,
     lat: req.body.lat,
-    long: req.body.long
+    lon: req.body.lon,
+    image: req.body.image
   });
 
   destination.save().then(
@@ -119,6 +122,32 @@ app.delete("/destinationbyname/:name", (req, res) => {
     .catch(e => {
       res.status(400).send();
     });
+});
+//MarkerRoutes
+app.post("/markerRoutes", (req, res) => {
+  var markerRoutes = new MarkerRoutes({
+    name: req.body.name,
+    routes: req.body.routes
+  });
+
+  markerRoutes.save().then(
+    doc => {
+      res.send(doc);
+    },
+    e => {
+      res.status(400).send(e);
+    }
+  );
+});
+app.get("/allroutes", (req, res) => {
+  MarkerRoutes.find().then(
+    routes => {
+      res.send({ routes });
+    },
+    e => {
+      res.status(400).send(e);
+    }
+  );
 });
 
 app.listen(port, () => {

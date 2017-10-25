@@ -1,18 +1,18 @@
-import React, {Component} from 'react';
 import CesiumGlobe from "./../cesium/CesiumGlobe";
+import React, {Component} from 'react';
+import axios from "axios";
 
-import reactLogo from "logo.svg";
+import markerLogo from "./../markerLogo.png";
 import redsLogo from "./../redsLogo.png";
 
 
-export default class Map extends Component{
-  state = {
-      reactLogo : {lat : 37.484505, lon : -122.147877, image : reactLogo},
-      redsLogo : { lat : 39.097465, lon : -84.50703, image : redsLogo, scale : 0.3},
-      markers: [
-           { lat: 37.484505, lon: -122.147877, image: reactLogo },
-           { lat: 39.097465, lon: -84.50703, image: redsLogo, scale: 0.3 }
-         ],
+export default class Map extends Component {
+  constructor(props) {
+     super(props);
+  this.state = {
+      markerLogo : {lat : 37.484505, lon : -122.147877, image : markerLogo, scale : 0.6},
+      redsLogo : { lat : 39.097465, lon : -84.50703, image : redsLogo, scale : 0.1},
+      markers: [],
       label : {lat : 35.0, lon : -100.0, text : "Catch phrase here"},
       line : [
               {lat : 47.5, lon : -122.3, alt : 20000 },
@@ -23,17 +23,53 @@ export default class Map extends Component{
       flyToLocation : null,
   }
 
+  this.deleteMarker = this.deleteMarker.bind(this);
+};
+  componentWillMount() {
+    axios
+      .get("http://localhost:3001/alldestinations")
+      .then(res =>
+        {
+          var markers = this.state.markers;
+          var result = res.data.destinations;
+          result.map((marker, i) =>
+          markers.push( marker ));
+          this.setState({ markers });
+        })
+      .catch(error=>console.log(error));
+
+  }
+
   handleLeftClick = coords => {
   console.log("Left mouse clicked at: ", coords);
-  var markers = this.state.markers;
-  markers.push({ lat: coords.lat, lon: coords.lon, image: reactLogo });
-  this.setState({ markers });
-  var line = this.state.line;
-  console.log(line);
-  line.push({ lat: coords.lat, lon: coords.lon, alt: 20000 });
-  this.setState({ line });
-};
-
+  axios
+    .post("http://localhost:3001/destination", {
+      lon: coords.lon,
+      lat: coords.lat,
+      image : markerLogo
+     })
+    .then(res => {
+      var markers = this.state.markers;
+      markers.push({ lat: coords.lat, lon: coords.lon, image: markerLogo });
+      this.setState({ markers });
+      console.log(res);
+    })
+    .catch(error=>console.log(error));
+}
+deleteMarker = (marker, index) => {
+  axios
+    .delete("http://localhost:3001/destination/" +  marker._id)
+    .then(res =>
+      {
+        //state deleteMarker
+        const markers = this.state.markers.filter((marker, markerIndex) => {
+            return markerIndex !== index
+          })
+          this.setState({ markers });
+      })
+    .catch(error=>console.log(error));
+  console.log("delete " + marker._id);
+}
 
   handleFlyToClicked = () => {
       this.setState({
@@ -41,7 +77,7 @@ export default class Map extends Component{
       });
   }
   render() {
-    const {reactLogo, redsLogo, label, line, flyToLocation, markers} = this.state;
+    const {markerLogo, redsLogo, label, line, flyToLocation, markers} = this.state;
 
     const containerStyle = {
         width: '100%',
@@ -53,7 +89,7 @@ export default class Map extends Component{
         position: 'fixed'
     };
 
-    const icons = [reactLogo, redsLogo];
+    const icons = markers;
     const labels = [label];
     const polylines = [line];
 
@@ -62,7 +98,7 @@ export default class Map extends Component{
 	<div className="row">
 		<div className="col-md-12">
 			<div className="row">
-				<div className="col-md-10">
+				<div className="col-md-8">
           <div style={containerStyle}>
               <CesiumGlobe
                   icons={icons}
@@ -71,31 +107,22 @@ export default class Map extends Component{
                   onLeftClick={this.handleLeftClick}
                   flyToLocation={flyToLocation}
               />
-              <div style={{position : "fixed", top : 100}}>
-                  <div style={{color : "white", fontSize: 20, }}>
-                      Text Over the Globe
-                  </div>
-                  <button style={{fontSize : 20}} onClick={this.handleFlyToClicked}>
-                      Jump Camera Location
-                  </button>
-              </div>
-
           </div>
 				</div>
-				<div className="col-md-2">
-          <ul style={{position : "fixed", top : 100, color : "white"}} >
-            {markers.map((marker, i) => <li>{marker.lat}<button className="glyphicon glyphicon-trash"></button>
+				<div className="col-md-4">
+          <ul style={{position : "fixed", top : 100, textAlign: "right"}} >
+            {markers.map((marker, index) =>
+              <li style={{color : "white"}} key={index} >{marker.lat} {marker.lon}
+              <button className="glyphicon glyphicon-trash"
+                onClick={() => {this.deleteMarker(marker, index)}} key={marker}></button>
           <button className="glyphicon glyphicon-pencil"></button></li>)}
-
-</ul>
+          </ul>
 				</div>
 			</div>
 		</div>
 	</div>
 </div>
-    )
-  }
-}
+    )}}
 
 // import CesiumGlobe from "./cesium/CesiumGlobe";
 //

@@ -57,8 +57,8 @@
     "cesium": "^1.30.0",
     "cors": "^2.8.4",
     "express": "^4.14.0",
-    "mongodb": "^2.2.5",
-    "mongoose": "^4.5.9",
+    "mongodb": "^2.2.33",
+    "mongoose": "^4.12.4",
     "react": "^15.4.2",
     "react-bootstrap": "^0.31.3",
     "react-dom": "^15.4.2",
@@ -67,13 +67,14 @@
     "redux": "^3.0.4"
   },
   "scripts": {
-    "start": "node scripts/start.js",
+    "start": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "node appserver/server.js",
+    "client": "node scripts/start.js",
     "build": "node scripts/build.js",
     "build:dll:cesium": "node ./scripts/buildCesiumDLL.js",
-    "test": "node scripts/test.js --env=jsdom",
-    "server": "node appserver/server.js",
-    "client": "react-scripts start"
+    "test": "node scripts/test.js --env=jsdom"
   },
+  "proxy": "http://localhost:3001/",
   "jest": {
     "collectCoverageFrom": [
       "src/**/*.{js,jsx}"

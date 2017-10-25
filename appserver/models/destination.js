@@ -9,9 +9,13 @@ var Destination = mongoose.model("Destination", {
     type: Number,
     default: null
   },
-  long: {
+  lon: {
     type: Number,
     default: null
+  },
+  image: {
+    type: String,
+    default: "Unknown"
   }
 });
 
